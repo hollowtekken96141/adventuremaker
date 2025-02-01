@@ -71,3 +71,42 @@ export function toggleTargetInput() {
     document.getElementById('state-target').style.display = isExternal ? 'none' : 'block';
     document.getElementById('external-target').style.display = isExternal ? 'block' : 'none';
 }
+
+// Drag functionality
+function initDrag(event) {
+    const area = event.target.closest('.clickable-area');
+    if (!area) return;
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startTop = parseFloat(area.style.top);
+    const startLeft = parseFloat(area.style.left);
+
+    function onMouseMove(e) {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        area.style.top = `${startTop + deltaY}px`;
+        area.style.left = `${startLeft + deltaX}px`;
+    }
+
+    function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+}
+
+// Define loadAreasForScene function
+function loadAreasForScene(sceneName) {
+    fetch(`/areas/${sceneName}`)
+        .then(response => response.json())
+        .then(areas => {
+            if (scenes[sceneName]) {
+                scenes[sceneName].areas = areas;
+                displayScene(sceneName);
+            }
+        })
+        .catch(error => console.error('Error loading areas:', error));
+}
