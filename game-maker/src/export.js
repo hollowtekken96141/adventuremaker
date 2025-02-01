@@ -33,7 +33,7 @@ async function fetchScenesData() {
                 newTab: area.new_tab,
                 transitionGif: area.transition_gif,
                 transitionDuration: area.transition_duration,
-                targetType: area.target_type
+                targetType: area.target_type // Ensure targetType is included
             }))
         };
     }
@@ -133,10 +133,10 @@ function generateHtmlContent(scenesData, title, backgroundData) {
                         area.dataset.targetType = areaData.targetType;
                         area.addEventListener('click', () => {
                             console.log('Clickable area clicked:', areaData); // Debug log
-                            if (areaData.transitionGif) {
-                                playTransition(areaData.transitionGif, areaData.transitionDuration, areaData.target, areaData.targetType);
+                            if (area.dataset.transitionGif) {
+                                playTransition(area.dataset.transitionGif, area.dataset.transitionDuration, area.dataset.target, area.dataset.targetType);
                             } else {
-                                navigateToTarget(areaData.target, areaData.targetType);
+                                navigateToTarget(area.dataset.target, area.dataset.targetType);
                             }
                         });
                         editor.appendChild(area);

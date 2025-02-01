@@ -34,6 +34,7 @@ db.serialize(() => {
         new_tab BOOLEAN,
         transition_gif BLOB,
         transition_duration INTEGER,
+        target_type TEXT, -- Ensure target_type is included
         FOREIGN KEY(scene_id) REFERENCES scenes(id)
     )`);
 });
@@ -135,7 +136,7 @@ app.post('/areas', (req, res) => {
         }
         
         // Then insert new areas
-        const stmt = db.prepare('INSERT INTO areas (scene_id, top, left, width, height, target, new_tab, transition_gif, transition_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
+        const stmt = db.prepare('INSERT INTO areas (scene_id, top, left, width, height, target, new_tab, transition_gif, transition_duration, target_type) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)');
 
         areas.forEach(area => {
             let transitionGifBuffer = null;
@@ -143,7 +144,7 @@ app.post('/areas', (req, res) => {
                 const base64Data = area.transition_gif.split(',')[1];
                 transitionGifBuffer = Buffer.from(base64Data, 'base64');
             }
-            stmt.run([area.scene_id, area.top, area.left, area.width, area.height, area.target, area.new_tab, transitionGifBuffer, area.transition_duration]);
+            stmt.run([area.scene_id, area.top, area.left, area.width, area.height, area.target, area.new_tab, transitionGifBuffer, area.transition_duration, area.target_type]);
         });
         
         stmt.finalize();
@@ -153,9 +154,9 @@ app.post('/areas', (req, res) => {
 
 app.put('/areas/:id', (req, res) => {
     const { id } = req.params;
-    const { top, left, width, height, target, new_tab } = req.body;
-    db.run('UPDATE areas SET top = ?, left = ?, width = ?, height = ?, target = ?, new_tab = ? WHERE id = ?', 
-        [top, left, width, height, target, new_tab, id], function(err) {
+    const { top, left, width, height, target, new_tab, target_type } = req.body;
+    db.run('UPDATE areas SET top = ?, left = ?, width = ?, height = ?, target = ?, new_tab = ?, target_type = ? WHERE id = ?', 
+        [top, left, width, height, target, new_tab, target_type, id], function(err) {
         if (err) {
             res.status(500).send(err);
         } else {
