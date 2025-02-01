@@ -80,7 +80,14 @@ app.post('/scenes', (req, res) => {
 app.put('/scenes/:id', (req, res) => {
     const { id } = req.params;
     const { name, gif } = req.body;
-    db.run('UPDATE scenes SET name = ?, gif = ? WHERE id = ?', [name, gif, id], function(err) {
+    let gifBuffer = null;
+    
+    if (gif && gif.includes('base64')) {
+        const base64Data = gif.split(',')[1];
+        gifBuffer = Buffer.from(base64Data, 'base64');
+    }
+    
+    db.run('UPDATE scenes SET name = ?, gif = ? WHERE id = ?', [name, gifBuffer, id], function(err) {
         if (err) {
             res.status(500).send(err);
         } else {
@@ -106,7 +113,19 @@ app.get('/areas/:scene_id', (req, res) => {
         if (err) {
             res.status(500).send(err);
         } else {
-            res.json(rows);
+            const areas = rows.map(row => ({
+                id: row.id,
+                scene_id: row.scene_id,
+                top: row.top,
+                left: row.left,
+                width: row.width,
+                height: row.height,
+                target: row.target,
+                new_tab: row.new_tab,
+                transition_gif: row.transition_gif ? `data:image/gif;base64,${row.transition_gif.toString('base64')}` : '',
+                transition_duration: row.transition_duration
+            }));
+            res.json(areas);
         }
     });
 });
@@ -114,6 +133,10 @@ app.get('/areas/:scene_id', (req, res) => {
 app.post('/areas', (req, res) => {
     const { areas } = req.body;
     
+    if (!areas || areas.length === 0 || !areas[0].scene_id) {
+        return res.status(400).send('Invalid areas data');
+    }
+
     // First delete existing areas for this scene
     db.run('DELETE FROM areas WHERE scene_id = ?', [areas[0].scene_id], (err) => {
         if (err) {
@@ -136,9 +159,16 @@ app.post('/areas', (req, res) => {
 
 app.put('/areas/:id', (req, res) => {
     const { id } = req.params;
-    const { top, left, width, height, target, new_tab } = req.body;
-    db.run('UPDATE areas SET top = ?, left = ?, width = ?, height = ?, target = ?, new_tab = ? WHERE id = ?', 
-        [top, left, width, height, target, new_tab, id], function(err) {
+    const { top, left, width, height, target, new_tab, transition_gif, transition_duration } = req.body;
+    let transitionGifBuffer = null;
+    
+    if (transition_gif && transition_gif.includes('base64')) {
+        const base64Data = transition_gif.split(',')[1];
+        transitionGifBuffer = Buffer.from(base64Data, 'base64');
+    }
+    
+    db.run('UPDATE areas SET top = ?, left = ?, width = ?, height = ?, target = ?, new_tab = ?, transition_gif = ?, transition_duration = ? WHERE id = ?', 
+        [top, left, width, height, target, new_tab, transitionGifBuffer, transition_duration, id], function(err) {
         if (err) {
             res.status(500).send(err);
         } else {

@@ -28,7 +28,7 @@ export function initializeEventListeners() {
     if (saveButton) saveButton.addEventListener('click', saveProject);
 
     const saveAreaButton = document.getElementById('save-area');
-    if (saveAreaButton) saveAreaButton.addEventListener('click', saveArea);
+    if (saveAreaButton) saveAreaButton.addEventListener('click', saveSceneAreas);
 
     const closeAreaFormButton = document.getElementById('close-area-form');
     if (closeAreaFormButton) closeAreaFormButton.addEventListener('click', () => areaForm.style.display = 'none');
