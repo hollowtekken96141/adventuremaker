@@ -1,7 +1,7 @@
 import { updateSceneSelector, selectScene, clearClickableAreas, createClickableArea } from './utils.js';
 import { editor } from './main.js';
 
-export let scenes = {};
+export let scenes = { "1": { gif: '', areas: [] } }; // Initialize with an empty scene called "1"
 export let currentScene = "1";
 
 export function initializeScenes() {

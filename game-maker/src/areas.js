@@ -73,3 +73,9 @@ export function loadAreasForScene(sceneName) {
         })
         .catch(error => console.error('Error loading areas:', error));
 }
+
+// Define and export editArea function
+export function editArea(area) {
+    // Logic to edit the area
+    console.log('Editing area:', area);
+}

@@ -1,5 +1,5 @@
-import { scenes, currentScene } from './scenes.js';
-import { saveSceneAreas } from './areas.js';
+import { scenes, currentScene, displayScene } from './scenes.js';
+import { saveSceneAreas, loadAreasForScene, editArea } from './areas.js'; // Ensure editArea and loadAreasForScene are imported
 import { sceneSelector, targetState, editor, targetType } from './main.js';
 
 export function updateSceneSelector() {
