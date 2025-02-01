@@ -1,0 +1,21 @@
+{
+  "name": "game-maker",
+  "version": "1.0.0",
+  "description": "A single-page interactive point-and-click game maker that allows users to create HTML webpages with GIFs and transitions.",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "sqlite3": "^5.0.2",
+    "body-parser": "^1.19.0",
+    "gifuct-js": "^1.0.0"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.15"
+  },
+  "author": "Your Name",
+  "license": "MIT"
+}

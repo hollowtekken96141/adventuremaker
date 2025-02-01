@@ -1,0 +1,4 @@
+
+
+add functionality to export the whole sequence as a html file. (this will use the data from the database that has been created in the session to generate a page)
+

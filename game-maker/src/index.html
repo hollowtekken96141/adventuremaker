@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; img-src 'self' data:;">
+    <title>Point-and-Click Game Maker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/gifuct-js@1.0.0/dist/gifuct-js.min.js"></script>
+</head>
+<body>
+    <div class="controls">
+        <input type="file" id="upload-gif" accept="image/gif" multiple>
+        <button id="add-scene-button">Add Scene</button>
+        <button id="delete-scene-button">Delete Scene</button>
+        <button id="rename-scene-button">Rename Scene</button>
+        <button id="add-clickable-area">Add Clickable Area</button>
+        <select id="scene-selector"></select>
+    </div>
+    <div class="editor-container">
+        <div class="editor" id="editor"></div>
+    </div>
+    <div class="area-form">
+        <label for="target-type">Target Type:</label>
+        <select id="target-type">
+            <option value="state">Scene</option>
+            <option value="external">External Link</option>
+        </select>
+        <div id="state-target">
+            <label for="target-state">Target Scene:</label>
+            <select id="target-state"></select>
+        </div>
+        <div id="external-target">
+            <label for="target-link">External Link:</label>
+            <input type="text" id="target-link" placeholder="https://...">
+        </div>
+        <label for="new-tab">Open in new tab:</label>
+        <input type="checkbox" id="new-tab">
+        <label for="transition-gif">Transition GIF:</label>
+        <input type="file" id="transition-gif" accept="image/gif">
+        <button id="save-area">Save</button>
+        <button id="close-area-form">Close</button>
+    </div>
+    <script type="module" src="main.js"></script>
+</body>
+</html>
