@@ -121,6 +121,12 @@ app.get('/areas/:scene_id', (req, res) => {
 app.post('/areas', (req, res) => {
     const { areas } = req.body;
     
+    console.log('Received areas:', areas); // Debug log
+
+    if (!areas || !Array.isArray(areas) || areas.length === 0) {
+        return res.status(400).send('Invalid areas data');
+    }
+
     // First delete existing areas for this scene
     db.run('DELETE FROM areas WHERE scene_id = ?', [areas[0].scene_id], (err) => {
         if (err) {
@@ -130,9 +136,13 @@ app.post('/areas', (req, res) => {
         
         // Then insert new areas
         const stmt = db.prepare('INSERT INTO areas (scene_id, top, left, width, height, target, new_tab, transition_gif, transition_duration) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)');
-        
+
         areas.forEach(area => {
-            const transitionGifBuffer = area.transition_gif ? Buffer.from(area.transition_gif.split(',')[1], 'base64') : null;
+            let transitionGifBuffer = null;
+            if (area.transition_gif && area.transition_gif.includes('base64')) {
+                const base64Data = area.transition_gif.split(',')[1];
+                transitionGifBuffer = Buffer.from(base64Data, 'base64');
+            }
             stmt.run([area.scene_id, area.top, area.left, area.width, area.height, area.target, area.new_tab, transitionGifBuffer, area.transition_duration]);
         });
         
@@ -162,6 +172,15 @@ app.delete('/areas/:id', (req, res) => {
         } else {
             res.sendStatus(200);
         }
+    });
+});
+
+// Add endpoint to clear all storage and saved work
+app.post('/clear-storage', (req, res) => {
+    db.serialize(() => {
+        db.run('DELETE FROM scenes');
+        db.run('DELETE FROM areas');
+        res.json({ success: true });
     });
 });
 

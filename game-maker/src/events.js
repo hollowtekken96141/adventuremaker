@@ -1,6 +1,6 @@
-import { addScene, deleteScene, renameScene, uploadGif, displayScene, currentScene } from './scenes.js';
+import { addScene, deleteScene, renameScene, uploadGif, displayScene, currentScene, selectScene } from './scenes.js';
 import { saveSceneAreas, addClickableArea } from './areas.js';
-import { toggleTargetInput } from './utils.js';
+import { toggleTargetInput, clearStorage } from './utils.js'; // Import clearStorage
 import { areaForm, targetType, sceneSelector } from './main.js';
 
 export function initializeEventListeners() {
@@ -36,6 +36,11 @@ export function initializeEventListeners() {
     const addClickableAreaButton = document.getElementById('add-clickable-area');
     if (addClickableAreaButton) {
         addClickableAreaButton.addEventListener('click', addClickableArea);
+    }
+
+    const clearStorageButton = document.getElementById('clear-storage-button');
+    if (clearStorageButton) {
+        clearStorageButton.addEventListener('click', clearStorage);
     }
 
     targetType.addEventListener('change', toggleTargetInput);

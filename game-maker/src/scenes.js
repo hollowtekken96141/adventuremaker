@@ -1,5 +1,6 @@
-import { updateSceneSelector, selectScene, clearClickableAreas, createClickableArea } from './utils.js';
-import { editor } from './main.js';
+import { updateSceneSelector, clearClickableAreas, createClickableArea } from './utils.js';
+import { editor, sceneSelector } from './main.js'; // Import sceneSelector
+import { saveSceneAreas, loadAreasForScene } from './areas.js'; // Ensure saveSceneAreas and loadAreasForScene are imported
 
 export let scenes = { "1": { gif: '', areas: [] } }; // Initialize with an empty scene called "1"
 export let currentScene = "1";
@@ -115,4 +116,16 @@ export function displayScene(sceneName) {
             });
         }
     }
+}
+
+// Export selectScene function
+export function selectScene(sceneName) {
+    if (currentScene && scenes[currentScene]) {
+        saveSceneAreas();
+    }
+    
+    let updatedCurrentScene = sceneName;
+    sceneSelector.value = sceneName;
+    loadAreasForScene(sceneName);
+    displayScene(sceneName);
 }

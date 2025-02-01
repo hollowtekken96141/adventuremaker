@@ -1,6 +1,6 @@
 import { scenes, currentScene, displayScene } from './scenes.js';
-import { saveSceneAreas, loadAreasForScene, editArea } from './areas.js'; // Ensure editArea and loadAreasForScene are imported
-import { sceneSelector, targetState, editor, targetType } from './main.js';
+import { saveSceneAreas, loadAreasForScene, editArea } from './areas.js';
+import { sceneSelector, targetState, editor, targetType, areaForm } from './main.js';
 
 export function updateSceneSelector() {
     sceneSelector.innerHTML = '';
@@ -28,7 +28,6 @@ export function selectScene(sceneName) {
         saveSceneAreas();
     }
     
-    // Update currentScene using a let variable
     let updatedCurrentScene = sceneName;
     sceneSelector.value = sceneName;
     loadAreasForScene(sceneName);
@@ -39,6 +38,13 @@ export function clearClickableAreas() {
     editor.querySelectorAll('.clickable-area').forEach(area => area.remove());
 }
 
+export function toggleTargetInput() {
+    const isExternal = targetType.value === 'external';
+    document.getElementById('state-target').style.display = isExternal ? 'none' : 'block';
+    document.getElementById('external-target').style.display = isExternal ? 'block' : 'none';
+}
+
+// Add createClickableArea function
 export function createClickableArea(areaData) {
     const area = document.createElement('div');
     area.classList.add('clickable-area');
@@ -54,7 +60,9 @@ export function createClickableArea(areaData) {
     const editButton = document.createElement('button');
     editButton.textContent = 'Edit';
     editButton.classList.add('edit-button');
-    editButton.addEventListener('click', () => editArea(area));
+    editButton.addEventListener('click', () => {
+        editArea(area);
+    });
     area.appendChild(editButton);
 
     const deleteButton = document.createElement('button');
@@ -66,14 +74,10 @@ export function createClickableArea(areaData) {
     return area;
 }
 
-export function toggleTargetInput() {
-    const isExternal = targetType.value === 'external';
-    document.getElementById('state-target').style.display = isExternal ? 'none' : 'block';
-    document.getElementById('external-target').style.display = isExternal ? 'block' : 'none';
-}
-
 // Drag functionality
 function initDrag(event) {
+    if (event.target.classList.contains('edit-button') || event.target.classList.contains('delete-button')) return;
+
     const area = event.target.closest('.clickable-area');
     if (!area) return;
 
@@ -98,15 +102,29 @@ function initDrag(event) {
     document.addEventListener('mouseup', onMouseUp);
 }
 
-// Define loadAreasForScene function
-function loadAreasForScene(sceneName) {
-    fetch(`/areas/${sceneName}`)
-        .then(response => response.json())
-        .then(areas => {
-            if (scenes[sceneName]) {
-                scenes[sceneName].areas = areas;
-                displayScene(sceneName);
+// Add clearStorage function
+export function clearStorage() {
+    if (confirm('Are you sure you want to clear all storage and saved work? This action cannot be undone.')) {
+        fetch('/clear-storage', {
+            method: 'POST'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to clear storage');
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                alert('All storage and saved work have been cleared.');
+                location.reload(); // Refresh the page
+            } else {
+                alert('Failed to clear storage.');
             }
         })
-        .catch(error => console.error('Error loading areas:', error));
+        .catch(error => {
+            console.error('Error clearing storage:', error);
+            alert('An error occurred while clearing storage.');
+        });
+    }
 }
