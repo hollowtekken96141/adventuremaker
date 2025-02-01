@@ -2,6 +2,7 @@ import { addScene, deleteScene, renameScene, uploadGif, displayScene, currentSce
 import { saveSceneAreas, addClickableArea } from './areas.js';
 import { toggleTargetInput, clearStorage } from './utils.js'; // Import clearStorage
 import { areaForm, targetType, sceneSelector } from './main.js';
+import { exportGame } from './export.js'; // Import exportGame
 
 export function initializeEventListeners() {
     const addSceneButton = document.getElementById('add-scene-button');
@@ -41,6 +42,44 @@ export function initializeEventListeners() {
     const clearStorageButton = document.getElementById('clear-storage-button');
     if (clearStorageButton) {
         clearStorageButton.addEventListener('click', clearStorage);
+    }
+
+    const exportGameButton = document.getElementById('export-game-button');
+    if (exportGameButton) {
+        exportGameButton.addEventListener('click', () => {
+            const exportOptions = document.getElementById('export-options');
+            exportOptions.style.display = 'block'; // Show export options
+        });
+    }
+
+    const confirmExportButton = document.getElementById('confirm-export-button');
+    if (confirmExportButton) {
+        confirmExportButton.addEventListener('click', () => {
+            const title = document.getElementById('export-title').value;
+            const backgroundInput = document.getElementById('export-background');
+            const backgroundFile = backgroundInput.files[0];
+            const exportOptions = document.getElementById('export-options');
+            exportOptions.style.display = 'none'; // Hide export options after confirming
+
+            if (backgroundFile) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const backgroundData = e.target.result;
+                    exportGame(title, backgroundData);
+                };
+                reader.readAsDataURL(backgroundFile);
+            } else {
+                exportGame(title, null);
+            }
+        });
+    }
+
+    const cancelExportButton = document.getElementById('cancel-export-button');
+    if (cancelExportButton) {
+        cancelExportButton.addEventListener('click', () => {
+            const exportOptions = document.getElementById('export-options');
+            exportOptions.style.display = 'none'; // Hide export options when cancel is pressed
+        });
     }
 
     targetType.addEventListener('change', toggleTargetInput);

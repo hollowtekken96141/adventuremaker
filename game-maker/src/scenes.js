@@ -124,7 +124,7 @@ export function selectScene(sceneName) {
         saveSceneAreas();
     }
     
-    let updatedCurrentScene = sceneName;
+    currentScene = sceneName;
     sceneSelector.value = sceneName;
     loadAreasForScene(sceneName);
     displayScene(sceneName);

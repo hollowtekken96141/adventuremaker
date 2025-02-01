@@ -16,6 +16,7 @@
         <button id="rename-scene-button">Rename Scene</button>
         <button id="add-clickable-area">Add Clickable Area</button>
         <button id="clear-storage-button">Clear</button> <!-- Updated button text -->
+        <button id="export-game-button">Export</button> <!-- New button to export game -->
         <select id="scene-selector"></select>
     </div>
     <div class="editor-container">
@@ -42,6 +43,14 @@
         <p id="transition-gif-text">No GIF set</p> <!-- New element to display transition GIF text -->
         <button id="save-area">Save</button>
         <button id="close-area-form">Close</button>
+    </div>
+    <div class="export-options" id="export-options" style="display: none;"> <!-- Hide by default -->
+        <label for="export-title">Page Title:</label>
+        <input type="text" id="export-title" placeholder="Enter page title">
+        <label for="export-background">Background Image/GIF:</label>
+        <input type="file" id="export-background" accept="image/*">
+        <button id="confirm-export-button">Confirm Export</button> <!-- New button to confirm export -->
+        <button id="cancel-export-button">Cancel</button> <!-- New button to cancel export -->
     </div>
     <script type="module" src="main.js"></script>
 </body>
