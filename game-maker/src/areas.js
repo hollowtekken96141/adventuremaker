@@ -60,3 +60,16 @@ export function addClickableArea() {
     
     editor.appendChild(area);
 }
+
+// Export loadAreasForScene function
+export function loadAreasForScene(sceneName) {
+    fetch(`/areas/${sceneName}`)
+        .then(response => response.json())
+        .then(areas => {
+            if (scenes[sceneName]) {
+                scenes[sceneName].areas = areas;
+                displayScene(sceneName);
+            }
+        })
+        .catch(error => console.error('Error loading areas:', error));
+}
