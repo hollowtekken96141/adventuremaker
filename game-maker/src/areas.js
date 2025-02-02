@@ -1,6 +1,7 @@
 import { scenes, currentScene } from './scenes.js';
 import { editor, areaForm, targetType, targetState, targetLink, newTabCheckbox, transitionGifInput } from './main.js';
 import { displayScene } from './scenes.js';
+import { initResize } from './utils.js'; // Import initResize
 
 export function initializeAreas() {
     fetch(`/areas/${currentScene}`)
@@ -127,7 +128,9 @@ export function editArea(area) {
 
     // Display the transition GIF text
     const transitionGifText = document.getElementById('transition-gif-text');
-    transitionGifText.textContent = area.dataset.transitionGif ? 'Current GIF: ' + area.dataset.transitionGif : 'No GIF set';
+    if (transitionGifText) {
+        transitionGifText.textContent = area.dataset.transitionGif ? 'Current GIF: ' + area.dataset.transitionGif : 'No GIF set';
+    }
 
     // Save changes to the area
     document.getElementById('save-area').onclick = () => {
@@ -159,31 +162,6 @@ function initDrag(event) {
         const deltaY = e.clientY - startY;
         area.style.top = `${startTop + deltaY}px`;
         area.style.left = `${startLeft + deltaX}px`;
-    }
-
-    function onMouseUp() {
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-    }
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-}
-
-function initResize(event) {
-    const area = event.target.closest('.clickable-area');
-    if (!area) return;
-
-    const startX = event.clientX;
-    const startY = event.clientY;
-    const startWidth = parseFloat(area.style.width);
-    const startHeight = parseFloat(area.style.height);
-
-    function onMouseMove(e) {
-        const deltaX = e.clientX - startX;
-        const deltaY = e.clientY - startY;
-        area.style.width = `${startWidth + deltaX}px`;
-        area.style.height = `${startHeight + deltaY}px`;
     }
 
     function onMouseUp() {

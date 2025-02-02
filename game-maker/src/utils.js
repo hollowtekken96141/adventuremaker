@@ -54,6 +54,7 @@ export function createClickableArea(areaData) {
     area.style.height = areaData.height;
     area.dataset.target = areaData.target;
     area.dataset.newTab = areaData.newTab;
+    area.dataset.targetType = areaData.targetType; // Ensure targetType is set
 
     area.addEventListener('mousedown', initDrag);
 
@@ -70,6 +71,11 @@ export function createClickableArea(areaData) {
     deleteButton.classList.add('delete-button');
     deleteButton.addEventListener('click', () => area.remove());
     area.appendChild(deleteButton);
+
+    const resizeHandle = document.createElement('div');
+    resizeHandle.classList.add('resize-handle');
+    resizeHandle.addEventListener('mousedown', initResize);
+    area.appendChild(resizeHandle);
 
     return area;
 }
@@ -91,6 +97,32 @@ function initDrag(event) {
         const deltaY = e.clientY - startY;
         area.style.top = `${startTop + deltaY}px`;
         area.style.left = `${startLeft + deltaX}px`;
+    }
+
+    function onMouseUp() {
+        document.removeEventListener('mousemove', onMouseMove);
+        document.removeEventListener('mouseup', onMouseUp);
+    }
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+}
+
+// Resize functionality
+export function initResize(event) {
+    const area = event.target.closest('.clickable-area');
+    if (!area) return;
+
+    const startX = event.clientX;
+    const startY = event.clientY;
+    const startWidth = parseFloat(area.style.width);
+    const startHeight = parseFloat(area.style.height);
+
+    function onMouseMove(e) {
+        const deltaX = e.clientX - startX;
+        const deltaY = e.clientY - startY;
+        area.style.width = `${startWidth + deltaX}px`;
+        area.style.height = `${startHeight + deltaY}px`;
     }
 
     function onMouseUp() {

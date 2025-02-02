@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; img-src 'self' data:;">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data:;">
     <title>Point-and-Click Game Maker</title>
     <link rel="stylesheet" href="styles.css">
     <script type="module" src="https://cdn.jsdelivr.net/npm/gifuct-js@1.0.0/dist/gifuct-js.min.js"></script>
@@ -15,6 +15,8 @@
         <button id="delete-scene-button">Delete Scene</button>
         <button id="rename-scene-button">Rename Scene</button>
         <button id="add-clickable-area">Add Clickable Area</button>
+        <button id="clear-storage-button">Clear</button> <!-- Ensure clear button is present -->
+        <button id="export-game-button">Export</button> <!-- Ensure export button is present -->
         <select id="scene-selector"></select>
     </div>
     <div class="editor-container">
@@ -38,8 +40,17 @@
         <input type="checkbox" id="new-tab">
         <label for="transition-gif">Transition GIF:</label>
         <input type="file" id="transition-gif" accept="image/gif">
+        <p id="transition-gif-text">No GIF set</p> <!-- Ensure this element is present -->
         <button id="save-area">Save</button>
         <button id="close-area-form">Close</button>
+    </div>
+    <div class="export-options" id="export-options">
+        <label for="export-title">Page Title:</label>
+        <input type="text" id="export-title" placeholder="Enter page title">
+        <label for="export-background">Background Image/GIF:</label>
+        <input type="file" id="export-background" accept="image/*">
+        <button id="confirm-export-button">Confirm Export</button>
+        <button id="cancel-export-button">Cancel</button>
     </div>
     <script type="module" src="main.js"></script>
 </body>

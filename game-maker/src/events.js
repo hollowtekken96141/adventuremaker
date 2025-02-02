@@ -41,7 +41,7 @@ export function initializeEventListeners() {
 
     const clearStorageButton = document.getElementById('clear-storage-button');
     if (clearStorageButton) {
-        clearStorageButton.addEventListener('click', clearStorage);
+        clearStorageButton.addEventListener('click', clearStorage); // Ensure clear button event listener is set up
     }
 
     const exportGameButton = document.getElementById('export-game-button');
