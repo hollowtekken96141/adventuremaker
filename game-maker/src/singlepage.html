@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.jsdelivr.net; style-src 'self'; img-src 'self' data:;">
+    <title>tekken webventure tool</title>
+    <style>
+        body {
+            background: url('assets/gifs/starwars.gif') no-repeat center center fixed;
+            background-size: cover;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 5px;
+        }
+
+        .editor-container {
+            position: relative;
+            width: 100%;
+            max-width: 375px; /* Mobile size width */
+            height: 667px; /* Mobile size height */
+            overflow: hidden;
+            background-color: white;
+            z-index: 1;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .editor {
+            width: 100%;
+            height: 100%;
+            background-color: white;
+            z-index: 1;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat; /* Ensure the background does not repeat */
+        }
+
+        .clickable-area {
+            position: absolute;
+            border: 2px dashed rgba(255, 0, 0, 0.7);
+            background-color: rgba(255, 0, 0, 0.1);
+            cursor: move;
+            min-width: 50px;
+            min-height: 50px;
+        }
+
+        .clickable-area:hover {
+            border-color: rgba(255, 0, 0, 1);
+            background-color: rgba(255, 0, 0, 0.2);
+        }
+
+        .clickable-area button {
+            position: absolute;
+            top: 5px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            cursor: pointer;
+            padding: 2px 5px;
+            z-index: 10;
+        }
+
+        .clickable-area .edit-button {
+            right: 25px;
+            z-index: 11;
+        }
+
+        .clickable-area .delete-button {
+            right: 5px;
+            z-index: 11;
+        }
+
+        .edit-button, .delete-button {
+            background-color: rgba(255, 255, 255, 0.8);
+            border: none;
+            cursor: pointer;
+            margin: 2px;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .resize-handle {
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 10px;
+            height: 10px;
+            background-color: rgba(255, 0, 0, 0.7);
+            cursor: se-resize;
+            z-index: 12;
+        }
+
+        .area-form {
+            position: absolute;
+            top: 50px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 5px;
+            display: none;
+            width: 250px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 100; /* Add this line to ensure form appears above editor */
+        }
+
+        .area-form label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .area-form select,
+        .area-form input[type="text"],
+        .area-form input[type="number"],
+        .area-form input[type="file"] {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        .area-form button {
+            margin-top: 15px;
+            margin-right: 10px;
+        }
+
+        .scene-gif {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+
+        @media (max-width: 600px) {
+            .controls {
+                width: 100%;
+                font-size: 14px;
+            }
+            
+            .area-form {
+                right: 0;
+                width: auto;
+                left: 0;
+                margin: 10px;
+            }
+        }
+
+        #state-target,
+        #external-target {
+            margin: 10px 0;
+        }
+
+        #target-link {
+            width: 100%;
+        }
+
+        /* Styles for export options submenu */
+        .export-options {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+            z-index: 100;
+            width: 300px;
+            display: none;
+        }
+
+        .export-options label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        .export-options input[type="text"],
+        .export-options input[type="file"] {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        .export-options button {
+            margin-top: 15px;
+            margin-right: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="controls">
+        <input type="file" id="upload-gif" accept="image/gif" multiple>
+        <button id="add-scene-button">Add Scene</button>
+        <button id="delete-scene-button">Delete Scene</button>
+        <button id="rename-scene-button">Rename Scene</button>
+        <button id="add-clickable-area">Add Clickable Area</button>
+        <button id="clear-storage-button">Clear</button> <!-- Ensure clear button is present -->
+        <button id="export-game-button">Export</button> <!-- Ensure export button is present -->
+        <select id="scene-selector"></select>
+    </div>
+    <div class="editor-container">
+        <div class="editor" id="editor"></div>
+    </div>
+    <div class="area-form">
+        <label for="target-type">Target Type:</label>
+        <select id="target-type">
+            <option value="state">Scene</option>
+            <option value="external">External Link</option>
+        </select>
+        <div id="state-target">
+            <label for="target-state">Target Scene:</label>
+            <select id="target-state"></select>
+        </div>
+        <div id="external-target">
+            <label for="target-link">External Link:</label>
+            <input type="text" id="target-link" placeholder="https://...">
+        </div>
+        <label for="new-tab">Open in new tab:</label>
+        <input type="checkbox" id="new-tab">
+        <label for="transition-gif">Transition GIF:</label>
+        <input type="file" id="transition-gif" accept="image/gif">
+        <p id="transition-gif-text">No GIF set</p> <!-- Ensure this element is present -->
+        <button id="save-area">Save</button>
+        <button id="close-area-form">Close</button>
+    </div>
+    <div class="export-options" id="export-options">
+        <label for="export-title">Page Title:</label>
+        <input type="text" id="export-title" placeholder="Enter page title">
+        <label for="export-background">Background Image/GIF:</label>
+        <input type="file" id="export-background" accept="image/*">
+        <button id="confirm-export-button">Confirm Export</button>
+        <button id="cancel-export-button">Cancel</button>
+    </div>
+    <script type="module">
+        // Main JavaScript code
+        import { initializeScenes } from './scenes.js';
+        import { initializeAreas } from './areas.js';
+        import { initializeEventListeners } from './events.js';
+
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeScenes();
+            initializeAreas();
+            initializeEventListeners();
+        });
+
+        export const sceneSelector = document.getElementById('scene-selector');
+        export const editor = document.getElementById('editor');
+        export const areaForm = document.querySelector('.area-form');
+        export const targetType = document.getElementById('target-type');
+        export const targetState = document.getElementById('target-state');
+        export const targetLink = document.getElementById('target-link');
+        export const newTabCheckbox = document.getElementById('new-tab');
+        export const transitionGifInput = document.getElementById('transition-gif');
+
+        // Scenes JavaScript code
+        import { updateSceneSelector, clearClickableAreas, createClickableArea } from './utils.js';
+        import { editor, sceneSelector } from './main.js'; // Import sceneSelector
+        import { saveSceneAreas, loadAreasForScene } from './areas.js'; // Ensure saveSceneAreas and loadAreasForScene are imported
+
+        export let scenes = { "1": { gif: '', areas: [] } }; // Initialize with an empty scene called "1"
+        export let currentScene = "1";
+
+        export function initializeScenes() {
+            fetch('/scenes')
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Loaded scenes:', data); // Debug log
+                    scenes = data.reduce((acc, scene) => {
+                        acc[scene.name] = {
+                            gif: scene.gif,
+                            areas: []
+                        };
+                        return acc;
+                    }, {});
+                    
+                    if (Object.keys(scenes).length === 0) {
+                        scenes = { "1": { gif: '', areas: [] } };
+                    }
+                    
+                    updateSceneSelector();
+                    selectScene("1");
+                })
+                .catch(error => console.error('Error loading scenes:', error));
+        }
+
+        export function addScene() {
+            const sceneName = prompt("Enter new scene name:");
+            if (sceneName && !scenes[sceneName]) {
+                scenes[sceneName] = { gif: '', areas: [] };
+                updateSceneSelector();
+                selectScene(sceneName);
+            } else {
+                alert("Scene name already exists or is invalid.");
+            }
+        }
+
+        export function deleteScene() {
+            if (currentScene) {
+                delete scenes[currentScene];
+                updateSceneSelector();
+                selectScene(Object.keys(scenes)[0]);
+            }
+        }
+
+        export function renameScene() {
+            if (currentScene) {
+                const newName = prompt("Enter new scene name:", currentScene);
+                if (newName && !scenes[newName]) {
+                    scenes[newName] = scenes[currentScene];
+                    delete scenes[currentScene];
+                    updateSceneSelector();
+                    selectScene(newName);
+                } else {
+                    alert("Scene name already exists or is invalid.");
+                }
+            }
+        }
+
+        export function uploadGif(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    if (currentScene) {
+                        const gifData = e.target.result;  // This is already base64
+                        
+                        // Save to database
+                        fetch('/scenes', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                            },
+                            body: JSON.stringify({
+                                name: currentScene,
+                                gif: gifData
+                            })
+                        }).then(() => {
+                            // Update local state only after successful save
+                            scenes[currentScene].gif = gifData;
+                            displayScene(currentScene);
+                        });
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        export function displayScene(sceneName) {
+            const scene = scenes[sceneName];
+            clearClickableAreas();
+            
+            if (scene) {
+                const gifData = scene.gif;
+                console.log('Displaying scene:', sceneName, gifData); // Debug log
+                if (gifData) {
+                    const img = new Image();
+                    img.onload = function() {
+                        editor.style.backgroundImage = `url('${gifData}')`;
+                        editor.style.backgroundSize = 'cover'; // Ensure the background covers the entire editor
+                        editor.style.backgroundPosition = 'center'; // Center the background image
+                    };
+                    img.src = gifData;
+                } else {
+                    editor.style.backgroundImage = 'none';
+                }
+                
+                if (scene.areas && Array.isArray(scene.areas)) {
+                    scene.areas.forEach(areaData => {
+                        const area = createClickableArea(areaData);
+                        editor.appendChild(area);
+                    });
+                }
+            }
+        }
+
+        // Export selectScene function
+        export function selectScene(sceneName) {
+            if (currentScene && scenes[currentScene]) {
+                saveSceneAreas();
+            }
+            
+            currentScene = sceneName;
+            sceneSelector.value = sceneName;
+            loadAreasForScene(sceneName);
+            displayScene(sceneName);
+        }
+
+        // Areas JavaScript code
+        import { scenes, currentScene } from './scenes.js';
+        import { editor, areaForm, targetType, targetState, targetLink, newTabCheckbox, transitionGifInput } from './main.js';
+        import { displayScene } from './scenes.js';
+        import { initResize } from './utils.js'; // Import initResize
+
+        export function initializeAreas() {
+            fetch(`/areas/${currentScene}`)
+                .then(response => response.json())
+                .then(areas => {
+                    console.log('Loaded areas for scene:', currentScene, areas); // Debug log
+                    if (scenes[currentScene]) {
+                        scenes[currentScene].areas = areas;
+                        displayScene(currentScene);
+                    }
+                });
+        }
+
+        export function saveSceneAreas() {
+            if (!currentScene || !scenes[currentScene]) return;
+
+            const areas = Array.from(editor.querySelectorAll('.clickable-area')).map(area => ({
+                scene_id: currentScene,
+                top: area.style.top || '0%',
+                left: area.style.left || '0%',
+                width: area.style.width || '20%',
+                height: area.style.height || '20%',
+                target: area.dataset.target || '',
+                new_tab: area.dataset.newTab === 'true',
+                transition_gif: area.dataset.transitionGif || '',
+                transition_duration: area.dataset.transitionDuration || 0,
+                target_type: area.dataset.targetType || 'state' // Save target type
+            }));
+
+            console.log('Saving areas:', areas); // Debug log
+
+            // Validate areas before sending
+            if (!areas || !Array.isArray(areas) || areas.length === 0) {
+                console.error('Invalid areas data:', areas);
+                return;
+            }
+
+            // Save to database
+            fetch('/areas', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ areas })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.text().then(text => { throw new Error(text) });
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Areas saved successfully:', data);
+                scenes[currentScene].areas = areas;
+            })
+            .catch(error => {
+                console.error('Error saving areas:', error);
+            });
+        }
+
+        export function addClickableArea() {
+            if (!currentScene) {
+                alert('Please select a scene first');
+                return;
+            }
+
+            const area = document.createElement('div');
+            area.classList.add('clickable-area');
+            area.style.top = '10%';
+            area.style.left = '10%';
+            area.style.width = '20%';
+            area.style.height = '20%';
+            area.dataset.target = '';
+            area.dataset.newTab = false;
+            area.dataset.targetType = 'state'; // Default target type
+
+            area.addEventListener('mousedown', initDrag);
+
+            const editButton = document.createElement('button');
+            editButton.textContent = 'Edit';
+            editButton.classList.add('edit-button');
+            editButton.addEventListener('click', () => {
+                editArea(area);
+            });
+            area.appendChild(editButton);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.textContent = 'X';
+            deleteButton.classList.add('delete-button');
+            deleteButton.addEventListener('click', () => area.remove());
+            area.appendChild(deleteButton);
+
+            const resizeHandle = document.createElement('div');
+            resizeHandle.classList.add('resize-handle');
+            resizeHandle.addEventListener('mousedown', initResize);
+            area.appendChild(resizeHandle);
+
+            editor.appendChild(area);
+        }
+
+        export function loadAreasForScene(sceneName) {
+            fetch(`/areas/${sceneName}`)
+                .then(response => response.json())
+                .then(areas => {
+                    console.log('Loaded areas for scene:', sceneName, areas); // Debug log
+                    if (scenes[sceneName]) {
+                        scenes[sceneName].areas = areas;
+                        displayScene(sceneName);
+                    }
+                })
+                .catch(error => console.error('Error loading areas:', error));
+        }
+
+        export function editArea(area) {
+            // Display the area form
+            areaForm.style.display = 'block';
+
+            // Populate the form with the area's data
+            targetType.value = area.dataset.targetType || 'state';
+            targetState.value = targetType.value === 'state' ? area.dataset.target : '';
+            targetLink.value = targetType.value === 'external' ? area.dataset.target : '';
+            newTabCheckbox.checked = area.dataset.newTab === 'true';
+            transitionGifInput.value = ''; // Ensure the value is set to an empty string
+
+            // Display the transition GIF text
+            const transitionGifText = document.getElementById('transition-gif-text');
+            if (transitionGifText) {
+                transitionGifText.textContent = area.dataset.transitionGif ? 'Current GIF: ' + area
